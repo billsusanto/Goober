@@ -1,6 +1,0 @@
-Total Number of Indexed Documents: 1
-
-Total Number of Unique Tokens: 1
-
-Total Size of Index: 2
-

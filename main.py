@@ -1,73 +1,89 @@
-from lxml import html
+from bs4 import BeautifulSoup
 import os
 import json
-#from postings import Posting
-from analyitics import Analyitics
-
 import nltk
-nltk.download('punkt_tab')
+from analyitics import Analyitics
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
-
 import re
-
-from lxml import etree
 
 def index_builder():
     index = {}
-    #main_folder = "DEV"
-    main_folder = "./TestPages"
+    main_folder = ".\DEV"
     doc_id = 0
+    url_mappings = []  # Batch storage for URL mappings
+    batch_size = 1000  # Define a batch size for periodic writing
 
     for root, dirs, files in os.walk(main_folder):
         print("Currently in directory:", root)
-        print("Subdirectories:", dirs)
-        print("Files:", files)
-        #Error around here
+        print("It has this many files: ", len(files))
         for file_name in files:
             file_path = os.path.join(root, file_name)
             with open(file_path, "r", errors="ignore") as web_page:
                 try:
                     json_data = json.load(web_page)
-
                     web_url = json_data.get("url")
+                    web_content = json_data.get("content")
+
+                    if not web_content.strip():  # Skip empty content
+                        continue  
 
                     doc_id += 1
-                    #Add mapping of doc_id to actual URL on url_mapping.txt
-                    with open("url_mapping.txt", "w") as mapping:
-                        mapping.write(f"{doc_id} -> {web_url}\n")
-                        mapping.write("\n")
-            
-                    #Maybe build helper function that can load html content tag by tag/line by line?
-                    web_content = json_data.get("content")
+                    url_mappings.append(f"{doc_id} -> {web_url}\n")  # Store mapping in batch
+
+                    # Tokenize content and add to index
                     docposting = tokenize(web_content)
                     for key in docposting:
                         if key in index:
                             index[key].append([doc_id, docposting[key][0], docposting[key][1], docposting[key][2]])
                         else:
                             index[key] = [doc_id, docposting[key][0], docposting[key][1], docposting[key][2]]
-                            #print(index[key])
                     
-                except ZeroDivisionError as e:
-                    print("The following error has occured: ", e)
+                    # Write partial indexes every 1000 documents
+                    if doc_id % 1000 == 0:
+                        write_partial_index(index, doc_id)
+                        index.clear()  # Clear memory after writing partial index
 
-        #Try to use partial indexing instead of one in memory dictionary
-        return index
+                    # Write url_mappings every batch_size entries
+                    if len(url_mappings) >= batch_size:
+                        with open("url_mapping.txt", "a") as mapping_file:
+                            mapping_file.writelines(url_mappings)
+                        url_mappings.clear()  # Clear memory after writing batch
 
-#Need to check for broken html ??
+                except Exception as e:
+                    print("Error processing file:", e)
+
+    # Write any remaining index and URL mappings
+    write_partial_index(index, doc_id)  # Write any remaining index data
+    with open("url_mapping.txt", "a") as mapping_file:
+        mapping_file.writelines(url_mappings)  # Write remaining URL mappings
+
+
 def tokenize(web_content) -> dict:
-    '''Accepts string of web_content, returns dict where key=token and value=[[tokens]]'''
-    print('TOKENIZE RUNNING')
-    tree = html.fromstring(web_content)
+    stemmer = PorterStemmer()
+    if not web_content:
+        print("Empty document content detected, skipping.")
+        return {}
+
+    web_content = re.sub(r'[\x00-\x1F\x7F]', '', web_content)
+    try:
+        soup = BeautifulSoup(web_content, 'html.parser')
+    except Exception as e:
+        print("Error parsing HTML with BeautifulSoup:", e)
+        return {}
+
     tokens_by_tag = {}
-    pattern = re.compile(r'\b\w+\b') #Regex pattern to filter out punctuation
-    position_counter = 0 #keep track of position of each token
-    for element in tree.iter():
-        tag_name = element.tag.lower()
-        text = element.text
-        if text: #tokenize and remove punctuation
+    pattern = re.compile(r'\b\w+\b')
+    position_counter = 0
+
+    for element in soup.find_all(True):
+        tag_name = element.name.lower()
+        text = element.get_text(strip=True)
+        
+        if text:
             tokens = word_tokenize(text)
             filtered_tokens = [token for token in tokens if pattern.match(token)]
+            
             for token in filtered_tokens:
                 stemmed_token = stemmer.stem(token.lower())
                 if stemmed_token in tokens_by_tag:
@@ -75,22 +91,22 @@ def tokenize(web_content) -> dict:
                     tokens_by_tag[stemmed_token][1].append(position_counter)
                     tokens_by_tag[stemmed_token][2] += 1
                 else:
-                    tokens_by_tag[stemmed_token] = ([tag_name], [position_counter], 1)
+                    tokens_by_tag[stemmed_token] = [[tag_name], [position_counter], 1]
+                
                 position_counter += 1
-        return tokens_by_tag
-    
-    #EXAMPLE OF EXPECTED OUTPUT:
-    # for token, (tags, positions, frequency) in tokens_by_tag.items():
-    # print(f"Token '{token}': ({tags}, {positions}, {frequency})")
-    
+
+    return tokens_by_tag
+
+def write_partial_index(index, doc_id):
+    # Writes the partial index to disk
+    partial_index_filename = f"index_part_{doc_id}.json"
+    with open(partial_index_filename, "w") as outfile:
+        json.dump(index, outfile)
 
 def main():
-    index = index_builder()
-    with open("index.json", "w") as outfile:
-        json.dump(index, outfile)
-    #json_file.write(f"{{key} : {Posting}}")
+    index_builder()
+    # Following partial index creation, merge the partial indexes into a final index as needed
     data = Analyitics("index.json")
-    #data = Analyitics(index)
     document_count = data.get_document_count()
     token_count = data.get_token_count()
     index_size = data.get_index_size()
@@ -99,11 +115,6 @@ def main():
         report.write(f"Total Number of Unique Tokens: {token_count}\n\n")
         report.write(f"Total Size of Index: {index_size}\n\n")
 
-    
-
-                    
 if __name__ == "__main__":
     nltk.download('punkt')
-    stemmer = PorterStemmer
-    print("Testing main now")
     main()

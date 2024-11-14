@@ -1,10 +1,11 @@
-import html
+from lxml import html
 import os
 import json
-from postings import Posting
+#from postings import Posting
 from analyitics import Analyitics
 
 import nltk
+nltk.download('punkt_tab')
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
@@ -14,48 +15,49 @@ from lxml import etree
 
 def index_builder():
     index = {}
-    main_folder = "/DEV"
-    #main_folder = "/TestPages"
+    #main_folder = "DEV"
+    main_folder = "./TestPages"
     doc_id = 0
 
-    for root, files in os.walk(main_folder):
-        for filename in files:
-            file_path = os.path.join(root, filename)
-        
-        with open(filename, 'r') as web_page:
-            try:
-                json_data = json.load(web_page)
-        
-                #Maybe build helper function that can load html content tag by tag/line by line?
-                web_content = json_data.get("content")
-                docposting = tokenize(web_content)
-                #for key in docposting:
-                    #if docposting key in index:
-                        #index[key].append([url, docposting[key][0], docposting[key][1], docposting[key][2]])
-                    #else
-                        #index[key] = [url, docposting[key][0], docposting[key][1], docposting[key][2]]
-                
-                
-                web_url = json_data.get("url")
+    for root, dirs, files in os.walk(main_folder):
+        print("Currently in directory:", root)
+        print("Subdirectories:", dirs)
+        print("Files:", files)
+        #Error around here
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            with open(file_path, "r", errors="ignore") as web_page:
+                try:
+                    json_data = json.load(web_page)
 
-                doc_id += 1
-                #Add mapping of doc_id to actual URL on url_mapping.txt
-                with open("url_mapping.txt", "w") as mapping:
-                    mapping.write(f"{doc_id} -> {web_url}\n")
+                    web_url = json_data.get("url")
 
-                #tokens = tokenize(web_content)
-                #insert tokenized content into index:
-                # for token in tokens:
-                #     index[token] = Posting(doc_id, f_count...)
-                
-            except Exception as e:
-                print("The following error has occured: ", e)
+                    doc_id += 1
+                    #Add mapping of doc_id to actual URL on url_mapping.txt
+                    with open("url_mapping.txt", "w") as mapping:
+                        mapping.write(f"{doc_id} -> {web_url}\n")
+                        mapping.write("\n")
+            
+                    #Maybe build helper function that can load html content tag by tag/line by line?
+                    web_content = json_data.get("content")
+                    docposting = tokenize(web_content)
+                    for key in docposting:
+                        if key in index:
+                            index[key].append([doc_id, docposting[key][0], docposting[key][1], docposting[key][2]])
+                        else:
+                            index[key] = [doc_id, docposting[key][0], docposting[key][1], docposting[key][2]]
+                            #print(index[key])
+                    
+                except ZeroDivisionError as e:
+                    print("The following error has occured: ", e)
 
-    #Don't return in memory dictionary but write it into seperate file
-    return index
+        #Try to use partial indexing instead of one in memory dictionary
+        return index
 
+#Need to check for broken html ??
 def tokenize(web_content) -> dict:
     '''Accepts string of web_content, returns dict where key=token and value=[[tokens]]'''
+    print('TOKENIZE RUNNING')
     tree = html.fromstring(web_content)
     tokens_by_tag = {}
     pattern = re.compile(r'\b\w+\b') #Regex pattern to filter out punctuation

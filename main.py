@@ -5,7 +5,7 @@ from nltk.stem import SnowballStemmer
 import json
 if __name__ == "__main__":
     # Define paths for data and output files
-    data_dir = ".DEV"  # Directory containing files to index
+    data_dir = "./DEV"  # Directory containing files to index
     index_file = "./indices/dev_index.txt"  # Path to save the index file
     url_mapping_file = "url_mapping.txt"  # Path to save the URL mappings
 

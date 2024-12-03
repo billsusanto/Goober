@@ -97,8 +97,8 @@ def merge_partial_indexes_streaming(output_file="full_index.json"):
     ]
 
     # Open output file for writing
-    with open(output_file, "w") as outfile:
-        #outfile.write("{")  # Start JSON object
+    with open(output_file, "w", encoding="utf-8") as outfile:
+        outfile.write("{")  # Start JSON object
         first_entry = True  # Track whether it's the first entry in the JSON
 
         # Create a priority queue to merge tokens incrementally
@@ -133,9 +133,10 @@ def merge_partial_indexes_streaming(output_file="full_index.json"):
             if not first_entry:
                 outfile.write(",")
             first_entry = False
-            json.dump({token: merged_postings}, outfile)
+            #json.dump({token: merged_postings}, outfile)
+            outfile.write(f'"{token}": {json.dumps(merged_postings)}')
 
-        #outfile.write("}")  # Close JSON object
+        outfile.write("}")  # Close JSON object
 
     # Close all open file handles
     for handle in file_handles:

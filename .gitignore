@@ -1,13 +1,3 @@
-indices/**
-
-indices
-
-indices/dev_index.json
-
-**/indices
-
 full_index.json
 
-partial_indexes
-
-partial_indexes/**
+#partial_indexes

@@ -1,5 +1,3 @@
-import os
-import re 
 from tokenizer import tokenize
 from collections import defaultdict
 from nltk.stem import SnowballStemmer
@@ -9,7 +7,7 @@ import json
 
 if __name__ == "__main__":
     docs = 55393
-    index_file = "./indices/dev_index.json"  # Path to save the index file
+    index_file = "full_index.json"  # Path to save the index file
     url_mapping_file = "url_mapping.json"  # Path to save the URL mappings
     stemmer = SnowballStemmer("english")
     tf_idf_scores = defaultdict(float)

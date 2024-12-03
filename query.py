@@ -22,7 +22,7 @@ if __name__ == "__main__":
             postings = data[word]
             idf = log(docs/len(postings))
             for p in postings:
-                tf_idf_scores[p[0]] += float(p[1]*idf)
+                tf_idf_scores[p[0]] += float(p[1]*idf) #Need to change?
 
     res = dict(sorted(tf_idf_scores.items(), key=itemgetter(1), reverse=True)[:10]).keys()
     print (f"Top 10 results for {query}: \n ")

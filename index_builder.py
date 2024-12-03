@@ -2,7 +2,6 @@ import os
 import json
 from bs4 import BeautifulSoup
 from tokenizer import tokenize
-from posting import Posting, ListOfPostings
 from collections import defaultdict
 
 def build_index(data_dir, stemmer):
@@ -23,6 +22,7 @@ def build_index(data_dir, stemmer):
 
     # Walk through the directory to process each JSON file
     for root, _, files in os.walk(data_dir):
+        print("Currently building index with directory:", root)
         for file_name in files:
             file_path = os.path.join(root, file_name)
             with open(file_path, "r", errors="ignore") as file:

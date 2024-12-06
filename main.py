@@ -11,10 +11,12 @@ if __name__ == "__main__":
 
 
       # Build the index and URL mapping from the provided data directory
-    #  print("Building index...")
-     # build_index(data_dir, stemmer)
-   #   postprocess_index()
-
+      print("Building index...")
+      build_index(data_dir, stemmer)
+      postprocess_index() # postprocess turns partial indexes folder into final indicies folder
+                          #final index 0 contains index with only tagged terms
+                          # the rest (1-6) are just alphabetical buckets with ONLY frequency, no 
+                          # when querying we'll only search indicies 1-6 as a last resort.
 
 
       # Generate a report with basic analytics on the index

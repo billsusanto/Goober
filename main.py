@@ -1,4 +1,4 @@
-from index_builder import build_index, merge_partial_indexes_streaming, postprocess_index
+from index_builder import build_index, postprocess_index
 from analytics import generate_analytics_report
 from nltk.stem import SnowballStemmer
 
@@ -14,7 +14,7 @@ if __name__ == "__main__":
       print("Building index...")
       build_index(data_dir, stemmer)
       postprocess_index() # postprocess turns partial indexes folder into final indicies folder
-                          #final index 0 contains index with only tagged terms
+                          # final index 0 contains index with only tagged terms
                           # the rest (1-6) are just alphabetical buckets with ONLY frequency, no 
                           # when querying we'll only search indicies 1-6 as a last resort.
 

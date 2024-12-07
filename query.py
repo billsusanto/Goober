@@ -1,8 +1,7 @@
 from tokenizer import tokenize
-from collections import defaultdict
+#from collections import defaultdict
 from nltk.stem import SnowballStemmer
 from operator import itemgetter
-from math import log
 import json
 
 if __name__ == "__main__":

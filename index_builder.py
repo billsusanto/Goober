@@ -3,10 +3,7 @@ import json
 from bs4 import BeautifulSoup
 from tokenizer import tokenize
 from collections import defaultdict
-<<<<<<< HEAD
-=======
 import re
->>>>>>> daniel
 
 def build_index(data_dir, stemmer):
     """
@@ -17,15 +14,6 @@ def build_index(data_dir, stemmer):
     - stemmer (SnowballStemmer): Stemmer used to reduce words to their base form.
     
     Returns:
-<<<<<<< HEAD
-    - index (dict): Dictionary where each key is a token and the value is a ListOfPostings.
-    - url_mapping (dict): Maps document IDs to URL information.
-    """
-    index = defaultdict(list)  # Stores tokens with associated postings
-    url_mapping = {}  # Maps document ID to its URL and file metadata
-    doc_id = 1  # Incremental document ID
-
-=======
     - folder with index (dict)s with 10,000 sites' postings at a time : Dictionary where each key is a token and the value is a ListOfPostings.
     - url_mapping (dict): Maps document IDs to URL information.
     """
@@ -34,7 +22,6 @@ def build_index(data_dir, stemmer):
     url_mapping = {}  # Maps document ID to its URL and file metadata
     doc_id = 1  # Incremental document ID
     batch_size = 10000
->>>>>>> daniel
     # Walk through the directory to process each JSON file
     for root, _, files in os.walk(data_dir):
         print("Currently building index with directory:", root)
@@ -45,27 +32,6 @@ def build_index(data_dir, stemmer):
                     data = json.load(file)  # Load JSON data from the file
                     url = data["url"]  # Extract URL
                     content = data["content"]  # Extract HTML content
-<<<<<<< HEAD
-                    
-                    # Parse HTML content and extract visible text
-                    soup = BeautifulSoup(content, "html.parser")
-                    text = soup.get_text()
-                    
-                    # Tokenize and stem words in the text
-                    tokens = tokenize(text, stemmer)
-                    token_counts = defaultdict(int)
-
-                    # Count the frequency of each token in the document
-                    for token in tokens:
-                        token_counts[token] += 1
-                    
-                    # Add each token to the index with a posting entry
-                    for token, frequency in token_counts.items():
-                        index[token].append([doc_id, frequency])
-
-                    # Store document metadata in the URL mapping
-                    url_mapping[doc_id] = (url, file_name, len(tokens))
-=======
 
                     # Parse HTML content and extract visible text
                     if not content.strip():
@@ -119,29 +85,10 @@ def build_index(data_dir, stemmer):
 
                     # Store document metadata in the URL mapping
                     url_mapping[doc_id] = (url, file_name, file_title[0:100])
->>>>>>> daniel
                     doc_id += 1  # Increment document ID for the next file
                 except json.JSONDecodeError:
                     # Skip files that aren't properly formatted JSON
                     continue
-<<<<<<< HEAD
-    return index, url_mapping
-
-def save_index_to_file(index, file_path):
-    """
-    Saves the inverted index to a file.
-    
-    Parameters:
-    - index (dict): The inverted index with tokens as keys and postings lists as values.
-    - file_path (str): Path to save the index file.
-    
-    Writes each token and its associated postings to a line in the file.
-    """
-    with open(file_path, "w", encoding='utf-8') as file:
-        for term, postings in sorted(index.items()):
-            file.write(f"{term} : {postings}\n")  # Save each token and postings list
-
-=======
 
     # Write any remaining index and URL mappings
     write_tag_index(tag_index)
@@ -235,4 +182,3 @@ def write_partial_index(index, doc_id):
 def write_url_mapping(url_mapping):
     with open("url_mapping.json", "w", encoding='utf-8') as file:
             json.dump(url_mapping, file)
->>>>>>> daniel

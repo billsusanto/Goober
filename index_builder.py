@@ -60,14 +60,22 @@ def build_index(data_dir, stemmer):
                                         token_dict[token][0] +=1 #frequency
                                         if(isinstance(tag, str)):
                                             if (tag == "title" or "header"):
-                                                token_dict[token][1] +=10 #scoring important tags, title/header being most important, h2 2nd, and bold/strong 3rd
+                                                token_dict[token][1] +=20 #scoring important tags, 
+                                                #title/header being most important, h2 2nd, and bold/strong 3rd
                                             elif (tag == "h1" or "h2"):
-                                                token_dict[token][1] += 5
+                                                token_dict[token][1] += 10
                                             else:
                                                 token_dict[token][1] += 1
                                     else:
                                         if(isinstance(tag, str)):
-                                           token_dict[token] = [1,1]
+                                            if (tag == "title" or "header"):
+                                                token_dict[token] = [1,20] #scoring important tags, 
+                                                #title/header being most important, h2 2nd, and bold/strong 3rd
+                                            elif (tag == "h1" or "h2"):
+                                                token_dict[token] = [1,10]
+                                            else:
+                                                token_dict[token] = [1,1]
+                                           
                                         else:
                                             token_dict[token] = [1,0]
                             element.decompose() 
@@ -89,6 +97,7 @@ def build_index(data_dir, stemmer):
                 except json.JSONDecodeError:
                     # Skip files that aren't properly formatted JSON
                     continue
+    #return index, url_mapping
 
     # Write any remaining index and URL mappings
     write_tag_index(tag_index)
@@ -98,6 +107,10 @@ def build_index(data_dir, stemmer):
 
 def postprocess_index():
      index_dir = './partial_indexes'
+     for i in range (7):
+         with open(f'./final_indicies/index_{i}.json', "w") as f:
+            data = {}
+            json.dump(data,f)
      
      for root, _, files in os.walk(index_dir):
         print("Currently postprocessing index with directory:", root)

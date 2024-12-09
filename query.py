@@ -1,8 +1,8 @@
 from tokenizer import tokenize
-#from collections import defaultdict
 from nltk.stem import SnowballStemmer
 from operator import itemgetter
 import json
+from math import log
 
 if __name__ == "__main__":
     docs = 55391
@@ -26,19 +26,23 @@ if __name__ == "__main__":
         token_freq.append([token,len(data[token])])
     token_freq.sort(key = lambda x: x[1])
     for i in range(0,len(token_freq)):
+        max_tag = 1
         if (i == 0):
-            for j in range(50):
+            for j in range(55391):
                 try:
                     posting = tags[token_freq[i][0]][j]
-                    q[posting[0]] = posting[2]
+                    if j == 0: 
+                        max_tag = posting[2]
+                    q[posting[0]] = (log(posting[2]) + log(docs/token_freq[i][1])) *posting[2]/max_tag
                 except:
                     continue
         else:
+            max_tag = tags[token_freq[i][0]][0][2]
             for p in tags[token_freq[i][0]]:
                 if p[0] in q:
-                    q[p[0]] += p[2]
+                    q[p[0]] += (log(p[2]) + log(docs/token_freq[i][1]) )* p[2]/max_tag
 
-
+    print(q)
     res = dict(sorted(q.items(), key=itemgetter(1), reverse=True)[:10]).keys()
     for r in res:
         print(mapping[str(r)][0])

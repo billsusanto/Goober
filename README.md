@@ -12,7 +12,7 @@ a Web search engine from the ground up that is capable of handling tens of thous
 
 # Installation
 ```bash
-git clone [<repository-url>](https://github.com/arjun-mann/Goober.git)
+git clone (https://github.com/arjun-mann/Goober.git)
 cd goober-frontend
 npm install
 npm run dev

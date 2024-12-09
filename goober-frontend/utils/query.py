@@ -31,8 +31,8 @@ if __name__ == "__main__":
         #print(f"Error: {e}. Trying alternative paths...")
 
         # Fallback: alternative paths
-        index_path = "../final_indicies"
-        url_mapping_file = "../url_mapping.json"
+        index_path = "./final_indicies"
+        url_mapping_file = "./url_mapping.json"
 
         try:
             with open(url_mapping_file, "r") as f:

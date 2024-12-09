@@ -9,7 +9,7 @@ export default function Home() {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch('/api/search', {
+      const response = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
@@ -23,9 +23,29 @@ export default function Home() {
       setResults(urls);
       setNoResults(urls.length === 0);
     } catch (error) {
-      console.error('Error fetching search results:', error);
+      console.error('Error fetching search results:', error); //Make some other thing pop up
     }
   };
+  // const handleSearch = async () => {
+  //   try {
+  //     const response = await fetch('/api/search', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ query }),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error(`Error: ${response.status}`);
+  //     }
+
+  //     const urls: string[] = await response.json();
+  //     setResults(urls);
+  //     setNoResults(urls.length === 0);
+  //   } catch (error) {
+  //     console.error('Error fetching search results:', error);
+  //   }
+  // };
+
 
   return (
     <div style={{

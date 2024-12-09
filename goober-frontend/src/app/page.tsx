@@ -9,7 +9,7 @@ export default function Home() {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch('https://goober-tau.vercel.app/pages/api/query', {
+      const response = await fetch('https://goober-tau.vercel.app/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),

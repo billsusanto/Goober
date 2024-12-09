@@ -6,13 +6,9 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<string[]>([]);
   const [noResults, setNoResults] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async () => {
     try {
-      setError(null);
-      setNoResults(false);
-      
       const response = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -26,9 +22,8 @@ export default function Home() {
       const urls: string[] = await response.json();
       setResults(urls);
       setNoResults(urls.length === 0);
-    } catch (error: unknown) {
-      setError('Failed to fetch search results. Please try a different query.');
-      setResults([]);
+    } catch (error) {
+      console.error('Error fetching search results:', error); //Make some other thing pop up
     }
   };
 
@@ -93,20 +88,6 @@ export default function Home() {
           }}
         />
       </div>
-
-      {/* Error message */}
-      {error && (
-        <div style={{
-          color: '#dc3545',
-          backgroundColor: '#f8d7da',
-          padding: '10px 20px',
-          borderRadius: '4px',
-          marginTop: '20px',
-          width: '50vw',
-        }}>
-          {error}
-        </div>
-      )}
 
       {/* Results */}
       <div>

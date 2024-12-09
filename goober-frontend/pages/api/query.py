@@ -79,29 +79,3 @@ if __name__ == "__main__":
         #print(f'{mapping[str(r)][2]}\n\n')
     end_time = time.perf_counter()
     print(f"Time to tokenize query: {end_time - start_time:.6f} seconds")
-
-
-
-
-
-    '''
-    with open(index_file, 'r', encoding = 'utf-8') as i:
-        data = json.load(i)
-        for word in tokens:
-            postings = data[word]
-            idf = log(docs/len(postings))
-            for p in postings:
-                tf_idf_scores[p[0]] += float(p[1]*idf) #Need to change?
-
-    res = dict(sorted(tf_idf_scores.items(), key=itemgetter(1), reverse=True)[:10]).keys()
-
-
-    print (f"Top 10 results for {query}: \n ")
-    with open (url_mapping_file, 'r', encoding = 'utf-8') as f:
-        data2 = json.load(f)
-        i = 1
-        for keys in res:
-            print (f"{i}: {(data2[str(keys)])[0]}\n")
-            i+=1
-    '''
-

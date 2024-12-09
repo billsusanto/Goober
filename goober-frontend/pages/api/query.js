@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
     // Wrap the Python script execution in a Promise
     return new Promise((resolve, reject) => {
-      const process = spawn('python', ['../query.py']);
+      const process = spawn('python', ['pages/api/query.py']);
       let output = '';
       let errorOutput = '';
 

@@ -76,7 +76,6 @@ export default function Home() {
 
       {/* Search bar */}
       <div style={{
-        marginBottom: '50px',
         width: '50vw',
         position: 'relative',
       }}>

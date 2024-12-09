@@ -10,7 +10,7 @@ a Web search engine from the ground up that is capable of handling tens of thous
 6. Scores and ranks documents.
 7. Response: The backend returns the top 10 results, which are displayed on the frontend.
 
-# Method 1: (goober-tau.vercel.app)
+# Method 1: [goober-tau.vercel.app](https://goober-tau.vercel.app)
 Query on our deployed search engine!
 
 # Method 2: Local Installation

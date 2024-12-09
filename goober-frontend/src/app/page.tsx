@@ -26,7 +26,7 @@ export default function Home() {
       const urls: string[] = await response.json();
       setResults(urls);
       setNoResults(urls.length === 0);
-    } catch (error) {
+    } catch (error: unknown) {
       setError('Failed to fetch search results. Please try a different query.');
       setResults([]);
     }

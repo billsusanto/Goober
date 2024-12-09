@@ -9,7 +9,7 @@ export default function Home() {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch('https://goober-tau.vercel.app/api/query', {
+      const response = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
@@ -23,7 +23,7 @@ export default function Home() {
       setResults(urls);
       setNoResults(urls.length === 0);
     } catch (error) {
-      console.error('Error fetching search results:', error); //Make some other thing pop up
+      console.error('Error fetching search results:', error);
     }
   };
 

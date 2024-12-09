@@ -3,7 +3,10 @@ import json
 from bs4 import BeautifulSoup
 from tokenizer import tokenize
 from collections import defaultdict
+from heapq import heappush, heappop
+from itertools import groupby
 import re
+from urllib.parse import urlparse
 
 def build_index(data_dir, stemmer):
     """
@@ -104,6 +107,27 @@ def build_index(data_dir, stemmer):
     write_partial_index(index, doc_id)  # Write any remaining index data
     write_url_mapping(url_mapping)
 
+def is_valid(posting, mapping):
+    BAD_PATHS = [
+    "/pdf/", "/doc/","/viewdoc/","/uploads/","/upload/","/Homeworks/","/hw/","/wp-content/","/comments/",
+    "/events/", "/event/", "/calendar/",
+    "/tree/","/-/"
+    ]
+
+    url = mapping[str(posting[0])][0]
+    parsed = urlparse(url)
+    if any(path in url for path in BAD_PATHS):
+        return False
+    return not re.match(
+            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|php|htm"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|java|webp"
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
 def postprocess_index():
      index_dir = './partial_indexes'
@@ -111,7 +135,11 @@ def postprocess_index():
          with open(f'./final_indicies/index_{i}.json', "w") as f:
             data = {}
             json.dump(data,f)
-     
+     mapping = {}
+     with open('url_mapping.json', "r") as f:
+         data = json.load(f)
+         mapping = data
+
      for root, _, files in os.walk(index_dir):
         print("Currently postprocessing index with directory:", root)
         for file_name in files:
@@ -124,6 +152,7 @@ def postprocess_index():
                         sorted_data = {}
                         for keys in data:
                             #sort based on tag score
+                            data[keys] = [posting for posting in data[keys] if is_valid(posting, mapping)]
                             data[keys].sort(key=lambda x: (x[2],x[1]),reverse = True)
                             sorted_data[keys] = data[keys]
 
@@ -138,6 +167,8 @@ def postprocess_index():
                         alpha = [{} for _ in range(6)]
                         data = json.load(file)  # Load dict "data" from json
                         for key in data:
+                            data[key] = [posting for posting in data[key] if is_valid(posting, mapping)]
+
                             #alphabetic buckets
                             if key.isnumeric():
                                 data[key].sort(key=lambda x: x[1], reverse=True)
@@ -195,3 +226,68 @@ def write_partial_index(index, doc_id):
 def write_url_mapping(url_mapping):
     with open("url_mapping.json", "w", encoding='utf-8') as file:
             json.dump(url_mapping, file)
+
+def merge_partial_indexes_streaming(output_file="full_index.json"): # my (Daniel's) code is not using this merge since we don't want to have the entire index in one file
+    """
+    Merges all partial index JSON files in the 'partial_indexes' directory into a single full index JSON file
+    without keeping the entire index in memory.
+
+    Args:
+        output_file (str): The name of the output file to write the merged index to.
+    """
+    # Directory containing the partial index files
+    # Directory containing the partial index files
+    partial_indexes_dir = "partial_indexes"
+
+    # Collect all partial index filenames
+    partial_files = [
+        os.path.join(partial_indexes_dir, f)
+        for f in os.listdir(partial_indexes_dir)
+        if f.endswith(".json")
+    ]
+
+    # Open output file for writing
+    with open(output_file, "w", encoding="utf-8") as outfile:
+        outfile.write("{")  # Start JSON object
+        first_entry = True  # Track whether it's the first entry in the JSON
+
+        # Create a priority queue to merge tokens incrementally
+        heap = []
+
+        # Open all files and push their contents to the heap
+        file_handles = []
+        for filepath in partial_files:
+            file_handle = open(filepath, "r")
+            partial_index = json.load(file_handle)
+            file_handles.append(file_handle)
+
+            # Push each token to the heap with its source file
+            for token, postings in partial_index.items():
+                heappush(heap, (token, postings))
+
+        # Merge tokens from the heap
+        while heap:
+            # Get the smallest token from the heap
+            token, postings = heappop(heap)
+
+            # Merge postings for the same token
+            merged_postings = postings
+            while heap and heap[0][0] == token:
+                _, next_postings = heappop(heap)
+                merged_postings.extend(next_postings)
+
+            # Sort postings by document ID
+            merged_postings = sorted(merged_postings, key=lambda x: x[0])
+
+            # Write the token and postings to the output file
+            if not first_entry:
+                outfile.write(",")
+            first_entry = False
+            #json.dump({token: merged_postings}, outfile)
+            outfile.write(f'"{token}": {json.dumps(merged_postings)}')
+
+        outfile.write("}")  # Close JSON object
+
+    # Close all open file handles
+    for handle in file_handles:
+        handle.close()

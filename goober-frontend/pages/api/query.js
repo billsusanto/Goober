@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
     try {
       const results = await new Promise((resolve, reject) => {
-        const process = spawn('python', [scriptPath]);
+        const process = spawn('python3', [scriptPath]);
         let output = '';
         let errorOutput = '';
 

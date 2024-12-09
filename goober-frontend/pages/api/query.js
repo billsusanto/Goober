@@ -4,10 +4,6 @@ import path from "path";
 export default async function handler(req, res) {
   const { query } = req.body;
 
-  if (!query) {
-    return res.status(400).json({ error: "Query is required" });
-  }
-
   const scriptPath = path.join(process.cwd(), "utils/query.py");
   console.log("Resolved Python script path:", scriptPath);
 

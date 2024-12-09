@@ -3,9 +3,9 @@ a Web search engine from the ground up that is capable of handling tens of thous
 
 How It Works
 1. User Input: The user types a query in the search bar on the frontend (page.tsx).
-2. API Call: The frontend sends the query to the /api/query endpoint (search.py).
+2. API Call: The frontend sends the query to the /api/query endpoint (query.py).
 3. Query Processing:
 4. The backend reads the dataset (final_indicies).
 5. Tokenizes and stems the query (tokenizer.py).
-6. Scores and ranks documents (query.py).
+6. Scores and ranks documents.
 7. Response: The backend returns the top 10 results, which are displayed on the frontend.

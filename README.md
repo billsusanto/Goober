@@ -1,5 +1,5 @@
 # Goober
-a Web search engine from the ground up that is capable of handling tens of thousands of Web pages, under harsh operational constraints and having a query response time under 300ms 
+A Web search engine from the ground up that is capable of handling tens of thousands of local University of California, Irvine, Web pages, under harsh operational constraints and having a query response time under 300ms 
 
 ## Index Analytics
 Number of Indexed Documents: 43716

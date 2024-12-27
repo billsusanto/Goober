@@ -1,6 +1,13 @@
 # Goober
 a Web search engine from the ground up that is capable of handling tens of thousands of Web pages, under harsh operational constraints and having a query response time under 300ms 
 
+## Index Analytics
+Number of Indexed Documents: 43716
+Number of Unique Tokens: 2054645
+Total Index Size: 172686.30 KB
+
+
+
 # How It Works
 1. User Input: The user types a query in the search bar on the frontend.
 2. API Call: The frontend sends the query to the /api/query endpoint (query.py).
@@ -21,3 +28,11 @@ npm install
 npm run dev
 ```
 Open your local host and query away!
+
+# Method 3: Terminal Access
+```bash
+# Make sure you are in the root directory
+git clone https://github.com/arjun-mann/Goober.git
+pip install nltk
+python query.py
+```
